@@ -1,10 +1,7 @@
 package org.example.userservicenov24.services;
 
 import org.apache.commons.text.RandomStringGenerator;
-import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
-import org.example.userservicenov24.exceptions.InvalidEntryException;
-import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
-import org.example.userservicenov24.exceptions.UserNotFoundException;
+import org.example.userservicenov24.exceptions.*;
 import org.example.userservicenov24.models.Token;
 import org.example.userservicenov24.models.User;
 import org.example.userservicenov24.repositories.TokenRepository;
@@ -41,6 +38,8 @@ public class UserServiceImpl implements UserService {
 		   String email,
 		   String password
    ) throws UserAlreadyPresentException {
+	  email = email.toLowerCase ();
+
 	  Optional<User> optionalUser = userRepository.findUserByEmail (email);
 	  if (optionalUser.isPresent ()) {
 		 throw new UserAlreadyPresentException ("User with " + email + " already exists, please login");
@@ -49,7 +48,7 @@ public class UserServiceImpl implements UserService {
 	  User user = new User ();
 	  user.setFirstName (firstName);
 	  user.setLastName (lastName);
-	  user.setUserName ((firstName + lastName).toLowerCase ());
+	  user.setUserName (email);
 	  user.setEmail (email);
 	  user.setPassword (passwordEncoder.encode (password));
 	  user.setIsVerified (true);
@@ -95,6 +94,7 @@ public class UserServiceImpl implements UserService {
    }
 
 
+   @Override
    public Token login (String email, String password)
 		   throws UserNotFoundException,
 						  InvalidEntryException,
@@ -108,6 +108,7 @@ public class UserServiceImpl implements UserService {
 	  6. Verify only 2 tokens are valid for one user.
 	   */
 
+	  email = email.toLowerCase ();
 	  Optional<User> optionalUser = userRepository.findUserByEmail (email);
 
 	  if (optionalUser.isEmpty ()) {
@@ -116,7 +117,8 @@ public class UserServiceImpl implements UserService {
 
 	  User user = optionalUser.get ();
 
-	  if (tokenRepository.tokenCount (user) > 2) {
+//	  if (tokenRepository.tokenCount (user) > 2 && tokenRepository. ) {
+	  if (tokenRepository.validTokenCount (user) >= 2) {
 		 throw new GeneratedTokenCountException ("Please logout form any of the 2 logins.");
 	  }
 //	  Check user password matches with raw or not.
@@ -128,8 +130,30 @@ public class UserServiceImpl implements UserService {
 	  Token token = new Token ();
 	  token.setUser (user);
 	  token.setExpiry (calculateExpiry (30));
+//	  token.setExpiry (new Date ());
 	  token.setValue (generateRandomAlphaNumeric (25));
 
 	  return tokenRepository.save (token);
+   }
+
+
+   @Override
+   public void logout (String tokenValue) throws ValidTokenNotFoundException {
+//	  Get valid token from the DB using tokenValue
+//	  else throw ValidTokenNotFound exception
+
+	  Optional<Token> optionalToken = tokenRepository.findByValueAndIsDeletedAndExpiryIsGreaterThan (
+			  tokenValue,
+			  false,
+			  new Date ());
+
+	  if (optionalToken.isEmpty ()) {
+		 throw new ValidTokenNotFoundException ("Valid token not found!");
+	  }
+
+	  Token token = optionalToken.get ();
+
+	  token.setIsDeleted (true);
+	  tokenRepository.save (token);
    }
 }

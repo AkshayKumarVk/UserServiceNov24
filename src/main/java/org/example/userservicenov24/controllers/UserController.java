@@ -1,22 +1,13 @@
 package org.example.userservicenov24.controllers;
 
-import org.example.userservicenov24.dtos.LoginRequestDto;
-import org.example.userservicenov24.dtos.LoginResponseDto;
-import org.example.userservicenov24.dtos.SignUpRequestDto;
-import org.example.userservicenov24.dtos.UserDto;
-import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
-import org.example.userservicenov24.exceptions.InvalidEntryException;
-import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
-import org.example.userservicenov24.exceptions.UserNotFoundException;
+import org.example.userservicenov24.dtos.*;
+import org.example.userservicenov24.exceptions.*;
 import org.example.userservicenov24.models.Token;
 import org.example.userservicenov24.models.User;
 import org.example.userservicenov24.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -53,5 +44,14 @@ public class UserController {
 	  );
 
 	  return new ResponseEntity<> (LoginResponseDto.from (token), HttpStatus.ACCEPTED);
+   }
+
+
+   @GetMapping("/logout")
+   public ResponseEntity<Void> logout (@RequestBody LogoutRequestDto requestDto)
+		   throws ValidTokenNotFoundException {
+
+	  userService.logout (requestDto.getTokenValue ());
+	  return new ResponseEntity<> (HttpStatus.OK);
    }
 }

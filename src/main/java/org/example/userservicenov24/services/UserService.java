@@ -1,9 +1,6 @@
 package org.example.userservicenov24.services;
 
-import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
-import org.example.userservicenov24.exceptions.InvalidEntryException;
-import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
-import org.example.userservicenov24.exceptions.UserNotFoundException;
+import org.example.userservicenov24.exceptions.*;
 import org.example.userservicenov24.models.Token;
 import org.example.userservicenov24.models.User;
 
@@ -21,4 +18,6 @@ public interface UserService {
    ) throws UserNotFoundException,
 					InvalidEntryException,
 					GeneratedTokenCountException;
+
+   void logout (String tokenValue) throws ValidTokenNotFoundException;
 }

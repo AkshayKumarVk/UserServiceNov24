@@ -1,10 +1,7 @@
 package org.example.userservicenov24.advices;
 
 import org.example.userservicenov24.dtos.ErrorDto;
-import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
-import org.example.userservicenov24.exceptions.InvalidEntryException;
-import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
-import org.example.userservicenov24.exceptions.UserNotFoundException;
+import org.example.userservicenov24.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,5 +49,13 @@ public class ControllerAdvice {
 
 	   errorDto.setMessage (generatedTokenCountException.getMessage ());
 	   return new ResponseEntity<> (errorDto, HttpStatus.NOT_ACCEPTABLE);
+   }
+
+   @ExceptionHandler
+   ResponseEntity<ErrorDto> handleValidTokenNotFountException (ValidTokenNotFoundException validTokenNotFoundException) {
+
+	  ErrorDto errorDto = new ErrorDto ();
+	  errorDto.setMessage (validTokenNotFoundException.getMessage ());
+	  return new ResponseEntity<> (errorDto,HttpStatus.UNAUTHORIZED);
    }
 }

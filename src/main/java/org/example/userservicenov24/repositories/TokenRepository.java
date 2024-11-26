@@ -19,4 +19,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
    @Query("select count(t) from Token t where t.user.id = :#{# user.id} and t.isDeleted = false ")
    int validTokenCount (@Param("user") User user);
+
+
+   Token findTokenByValue(String value);
+
 }

@@ -9,11 +9,9 @@ import org.example.userservicenov24.repositories.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -56,32 +54,32 @@ public class UserServiceImpl implements UserService {
 	  return userRepository.save (user);
    }
 
-   public String createToken (int maxLength) {
-	  StringBuilder randomToken = new StringBuilder ();
+//   public String createToken (int maxLength) {
+//	  StringBuilder randomToken = new StringBuilder ();
+//
+//	  String alphas = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+//
+//	  Random random = new Random ();
+//
+//	  for (int i = 0; i < maxLength; i++) {
+//		 int index = random.nextInt (maxLength);
+//		 randomToken.append (alphas.charAt (index));
+//		 if (i == 9 || i == 19) {
+//			randomToken.append ('.');
+//		 }
+//	  }
+//	  return randomToken.toString ();
+//   }
 
-	  String alphas = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-	  Random random = new Random ();
-
-	  for (int i = 0; i < maxLength; i++) {
-		 int index = random.nextInt (maxLength);
-		 randomToken.append (alphas.charAt (index));
-		 if (i == 9 || i == 19) {
-			randomToken.append ('.');
-		 }
-	  }
-	  return randomToken.toString ();
-   }
-
-   public String formatDate (int max) {
-	  Date date = new Date ();
-	  SimpleDateFormat formatter = new SimpleDateFormat ("ddMMyyHHmm");
-	  return max + "daysfrom" + formatter.format (date);
-   }
+//   public String formatDate (int max) {
+//	  Date date = new Date ();
+//	  SimpleDateFormat formatter = new SimpleDateFormat ("ddMMyyHHmm");
+//	  return max + "daysfrom" + formatter.format (date);
+//   }
 
    public Date calculateExpiry (int days) {
 	  Calendar calendar = Calendar.getInstance ();
-	  calendar.add (Calendar.DAY_OF_MONTH, 30);
+	  calendar.add (Calendar.DAY_OF_MONTH, days);
 	  return calendar.getTime ();
    }
 
@@ -155,5 +153,22 @@ public class UserServiceImpl implements UserService {
 
 	  token.setIsDeleted (true);
 	  tokenRepository.save (token);
+   }
+
+   @Override
+   public User validateToken (String value)
+		   throws ValidTokenNotFoundException {
+
+	  Optional<Token> optionalToken = tokenRepository.findByValueAndIsDeletedAndExpiryIsGreaterThan (
+			  value,
+			  false,
+			  new Date ()
+	  );
+
+	  if (optionalToken.isEmpty ()) {
+		 throw new ValidTokenNotFoundException ("Valid Token Not Found!");
+	  }
+
+	  return optionalToken.get ().getUser ();
    }
 }

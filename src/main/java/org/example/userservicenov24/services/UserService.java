@@ -20,4 +20,6 @@ public interface UserService {
 					GeneratedTokenCountException;
 
    void logout (String tokenValue) throws ValidTokenNotFoundException;
+
+   User validateToken(String tokenValue) throws ValidTokenNotFoundException;
 }

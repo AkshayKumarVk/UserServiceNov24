@@ -48,10 +48,19 @@ public class UserController {
 
 
    @GetMapping("/logout")
-   public ResponseEntity<Void> logout (@RequestBody LogoutRequestDto requestDto)
+   public ResponseEntity<Void> logout (@RequestBody TokenRequestDto requestDto)
 		   throws ValidTokenNotFoundException {
 
 	  userService.logout (requestDto.getTokenValue ());
 	  return new ResponseEntity<> (HttpStatus.OK);
+   }
+
+
+   @GetMapping("/validateToken/{tokenValue}")
+   public ResponseEntity<UserDto> validateToken (@PathVariable("tokenValue") String tokenValue)
+		   throws ValidTokenNotFoundException {
+
+	  User user = userService.validateToken (tokenValue);
+	  return new ResponseEntity<> (UserDto.from (user),HttpStatus.OK);
    }
 }

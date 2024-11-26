@@ -60,7 +60,12 @@ public class UserController {
    public ResponseEntity<UserDto> validateToken (@PathVariable("tokenValue") String tokenValue)
 		   throws ValidTokenNotFoundException {
 
-	  User user = userService.validateToken (tokenValue);
-	  return new ResponseEntity<> (UserDto.from (user),HttpStatus.OK);
+	  try {
+		 User user = userService.validateToken (tokenValue);
+		 return new ResponseEntity<> (UserDto.from (user), HttpStatus.OK);
+	  }
+	  catch (ValidTokenNotFoundException exception){
+		 return null;
+	  }
    }
 }

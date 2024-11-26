@@ -14,7 +14,7 @@ import java.util.Date;
 public class LoginResponseDto {
    private String email;
    private String value;
-   private String expiry;
+   private Date expiry;
 
 
    public static LoginResponseDto from (Token token) {

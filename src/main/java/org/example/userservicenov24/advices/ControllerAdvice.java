@@ -1,6 +1,7 @@
 package org.example.userservicenov24.advices;
 
 import org.example.userservicenov24.dtos.ErrorDto;
+import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
 import org.example.userservicenov24.exceptions.InvalidEntryException;
 import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
 import org.example.userservicenov24.exceptions.UserNotFoundException;
@@ -24,7 +25,7 @@ public class ControllerAdvice {
 	  ErrorDto errorDto = new ErrorDto ();
 	  errorDto.setMessage (exception.getMessage ());
 
-	  return new ResponseEntity<> (errorDto, HttpStatus.NOT_ACCEPTABLE);
+	  return new ResponseEntity<> (errorDto, HttpStatus.UNAUTHORIZED);
    }
 
    @ExceptionHandler
@@ -38,10 +39,18 @@ public class ControllerAdvice {
    }
 
    @ExceptionHandler
-   ResponseEntity<ErrorDto> HandleUserAlreadyPresentException (UserAlreadyPresentException exception) {
+   ResponseEntity<ErrorDto> handleUserAlreadyPresentException (UserAlreadyPresentException exception) {
 	  ErrorDto dto = new ErrorDto ();
 
 	  dto.setMessage (exception.getMessage ());
 	  return new ResponseEntity<> (dto, HttpStatus.ALREADY_REPORTED);
+   }
+
+   @ExceptionHandler
+   ResponseEntity<ErrorDto> handleGeneratedTokenCountException (GeneratedTokenCountException generatedTokenCountException) {
+	  ErrorDto errorDto = new ErrorDto ();
+
+	   errorDto.setMessage (generatedTokenCountException.getMessage ());
+	   return new ResponseEntity<> (errorDto, HttpStatus.NOT_ACCEPTABLE);
    }
 }

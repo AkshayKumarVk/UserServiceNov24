@@ -4,6 +4,7 @@ import org.example.userservicenov24.dtos.LoginRequestDto;
 import org.example.userservicenov24.dtos.LoginResponseDto;
 import org.example.userservicenov24.dtos.SignUpRequestDto;
 import org.example.userservicenov24.dtos.UserDto;
+import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
 import org.example.userservicenov24.exceptions.InvalidEntryException;
 import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
 import org.example.userservicenov24.exceptions.UserNotFoundException;
@@ -43,7 +44,8 @@ public class UserController {
    @PostMapping("/login")
    public ResponseEntity<LoginResponseDto> login (@RequestBody LoginRequestDto requestDto)
 		   throws UserNotFoundException,
-						  InvalidEntryException {
+						  InvalidEntryException,
+						  GeneratedTokenCountException {
 
 	  Token token = userService.login (
 			  requestDto.getEmail (),

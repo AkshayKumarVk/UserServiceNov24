@@ -1,5 +1,6 @@
 package org.example.userservicenov24.services;
 
+import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
 import org.example.userservicenov24.exceptions.InvalidEntryException;
 import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
 import org.example.userservicenov24.exceptions.UserNotFoundException;
@@ -18,5 +19,6 @@ public interface UserService {
 		   String email,
 		   String password
    ) throws UserNotFoundException,
-					InvalidEntryException;
+					InvalidEntryException,
+					GeneratedTokenCountException;
 }

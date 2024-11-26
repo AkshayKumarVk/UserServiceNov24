@@ -26,4 +26,6 @@ public abstract class BaseModel {
 
    @LastModifiedDate
    private Date updatedAt;
+
+   private Boolean isDeleted = false;
 }

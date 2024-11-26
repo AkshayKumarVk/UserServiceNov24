@@ -1,5 +1,7 @@
 package org.example.userservicenov24.services;
 
+import org.apache.commons.text.RandomStringGenerator;
+import org.example.userservicenov24.exceptions.GeneratedTokenCountException;
 import org.example.userservicenov24.exceptions.InvalidEntryException;
 import org.example.userservicenov24.exceptions.UserAlreadyPresentException;
 import org.example.userservicenov24.exceptions.UserNotFoundException;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
@@ -40,7 +43,7 @@ public class UserServiceImpl implements UserService {
    ) throws UserAlreadyPresentException {
 	  Optional<User> optionalUser = userRepository.findUserByEmail (email);
 	  if (optionalUser.isPresent ()) {
-		 throw new UserAlreadyPresentException ("User with " + email + " already exists, please login" );
+		 throw new UserAlreadyPresentException ("User with " + email + " already exists, please login");
 	  }
 
 	  User user = new User ();
@@ -61,45 +64,72 @@ public class UserServiceImpl implements UserService {
 
 	  Random random = new Random ();
 
-	  for(int i = 0; i < maxLength; i++){
+	  for (int i = 0; i < maxLength; i++) {
 		 int index = random.nextInt (maxLength);
 		 randomToken.append (alphas.charAt (index));
-		 if(i == 9 || i == 19){
+		 if (i == 9 || i == 19) {
 			randomToken.append ('.');
 		 }
 	  }
 	  return randomToken.toString ();
    }
 
-   public String formatDate(int max){
+   public String formatDate (int max) {
 	  Date date = new Date ();
 	  SimpleDateFormat formatter = new SimpleDateFormat ("ddMMyyHHmm");
 	  return max + "daysfrom" + formatter.format (date);
    }
 
+   public Date calculateExpiry (int days) {
+	  Calendar calendar = Calendar.getInstance ();
+	  calendar.add (Calendar.DAY_OF_MONTH, 30);
+	  return calendar.getTime ();
+   }
+
+   public String generateRandomAlphaNumeric (int length) {
+	  RandomStringGenerator randomStringGenerator = new RandomStringGenerator.Builder ()
+															.withinRange ('0', 'z')
+															.filteredBy (Character::isLetterOrDigit)
+															.build ();
+	  return randomStringGenerator.generate (length);
+   }
+
+
    public Token login (String email, String password)
 		   throws UserNotFoundException,
-						  InvalidEntryException {
+						  InvalidEntryException,
+						  GeneratedTokenCountException {
+	  /*
+	  1. Find user in repo by email.
+	  2. If the user is null, throw User didn't find exception.
+	  3. Check the give email and password matches with repo email and password.
+	  4. If no, throw invalid credentials' error.
+	  5. Generate token for the user.
+	  6. Verify only 2 tokens are valid for one user.
+	   */
 
 	  Optional<User> optionalUser = userRepository.findUserByEmail (email);
 
 	  if (optionalUser.isEmpty ()) {
-		 throw new UserNotFoundException ("User with " + email + " does not exists, please signup");
+		 throw new UserNotFoundException ("User with " + email + " is not existing please sign");
 	  }
+
 	  User user = optionalUser.get ();
 
-
-	  if (passwordEncoder.matches (password, user.getPassword ())) {
-		 Token token = new Token ();
-
-		 token.setUser (user);
-		 token.setValue (createToken (30));
-		 token.setExpiry (formatDate (90));
-
-		 return tokenRepository.save (token);
-
-	  } else {
-		 throw new InvalidEntryException ("Kindly check the entered email or password and retry");
+	  if (tokenRepository.tokenCount (user) > 2) {
+		 throw new GeneratedTokenCountException ("Please logout form any of the 2 logins.");
 	  }
+//	  Check user password matches with raw or not.
+
+	  if (!passwordEncoder.matches (password, user.getPassword ())) {
+		 throw new InvalidEntryException ("Invalid entry please check email and password.");
+	  }
+
+	  Token token = new Token ();
+	  token.setUser (user);
+	  token.setExpiry (calculateExpiry (30));
+	  token.setValue (generateRandomAlphaNumeric (25));
+
+	  return tokenRepository.save (token);
    }
 }

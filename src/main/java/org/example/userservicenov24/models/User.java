@@ -1,11 +1,9 @@
 package org.example.userservicenov24.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
 
 import java.util.List;
 
@@ -21,6 +19,6 @@ public class User extends BaseModel{
    private String email;
    private String password;
    private Boolean isVerified;
-//   @ManyToMany
-//   private List<Role> roles;
+   @ManyToMany(fetch = FetchType.EAGER)
+   private List<Role> roles;
 }

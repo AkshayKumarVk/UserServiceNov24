@@ -57,15 +57,14 @@ public class UserController {
 
 
    @GetMapping("/validateToken/{tokenValue}")
-   public ResponseEntity<UserDto> validateToken (@PathVariable("tokenValue") String tokenValue)
+   public ResponseEntity<?> validateToken (@PathVariable("tokenValue") String tokenValue)
 		   throws ValidTokenNotFoundException {
+	  User user = userService.validateToken (tokenValue);
 
-	  try {
-		 User user = userService.validateToken (tokenValue);
-		 return new ResponseEntity<> (UserDto.from (user), HttpStatus.OK);
+	  if (user == null) {
+		 throw new ValidTokenNotFoundException ("User not found");
 	  }
-	  catch (ValidTokenNotFoundException exception){
-		 return null;
-	  }
+
+	  return ResponseEntity.ok (UserDto.from (user));
    }
 }

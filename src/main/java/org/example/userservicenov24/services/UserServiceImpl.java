@@ -159,6 +159,7 @@ public class UserServiceImpl implements UserService {
    public User validateToken (String value)
 		   throws ValidTokenNotFoundException {
 
+//	  System.out.println ("Validating the token!!!");
 	  Optional<Token> optionalToken = tokenRepository.findByValueAndIsDeletedAndExpiryIsGreaterThan (
 			  value,
 			  false,
@@ -170,5 +171,6 @@ public class UserServiceImpl implements UserService {
 	  }
 
 	  return optionalToken.get ().getUser ();
+//	  return null;
    }
 }
